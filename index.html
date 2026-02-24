@@ -226,6 +226,12 @@
                     </div>
                 </div>
                 <br>
+                <div class="flex demo" style="align-items: center; gap: 12px;">
+                    <label for="icon-size" style="white-space: nowrap;">Icon size</label>
+                    <input type="range" id="icon-size" min="24" max="256" value="54" style="flex: 1;">
+                    <span id="icon-size-value" style="min-width: 32px; text-align: right;">54px</span>
+                </div>
+                <br>
                 <button class="error" onclick="clearBlades()">Clear All Blades</button>
             </div>
         </div>
@@ -239,6 +245,7 @@
         let coords = [55.68425837121026, 12.593041555270815];
         let map = L.map('map').setView(coords, 17);
         let circles = []; // Array to store all circles
+        let turbineMarkers = []; // Array to store {marker, color} for icon refresh
         let locationMarker; // Store the location marker
 
         const bladeData = {
@@ -249,7 +256,8 @@
         };
 
         function createTurbineIcon(color) {
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="-0.9496 -0.8052 32.8893 32.2877">
+            const size = parseInt(document.getElementById('icon-size').value);
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="-0.9496 -0.8052 32.8893 32.2877">
                 <g transform="rotate(20.595337,16.735006,11.935507)">
                     <!-- Blade 1 -->
                     <path
@@ -272,7 +280,7 @@
                         cx="16.771407" cy="15.557316" r="1.2443389" />
                 </g>
             </svg>`;
-            return L.divIcon({ html: svg, className: '', iconSize: [36, 36], iconAnchor: [18, 18] });
+            return L.divIcon({ html: svg, className: '', iconSize: [size, size], iconAnchor: [size / 2, size / 2] });
         }
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -335,12 +343,14 @@
             }).addTo(map);
 
             circles.push(marker, circle);
+            turbineMarkers.push({ marker, color });
         }
 
         // Function to clear all blades
         function clearBlades() {
             circles.forEach(circle => map.removeLayer(circle));
             circles = [];
+            turbineMarkers = [];
         }
 
         // Add click event listener to map
@@ -390,6 +400,14 @@
             if (e.key === 'Enter') {
                 searchPlaceButton.click();
             }
+        });
+
+        // Icon size slider
+        const iconSizeSlider = document.getElementById('icon-size');
+        const iconSizeLabel = document.getElementById('icon-size-value');
+        iconSizeSlider.addEventListener('input', () => {
+            iconSizeLabel.textContent = iconSizeSlider.value + 'px';
+            turbineMarkers.forEach(({ marker, color }) => marker.setIcon(createTurbineIcon(color)));
         });
 
         // 40.639495008164715, -7.9438916760787075
