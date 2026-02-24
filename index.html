@@ -249,7 +249,7 @@
         };
 
         function createTurbineIcon(color) {
-            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 29.183 29.183">
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="-0.9496 -0.8052 32.8893 32.2877">
                 <g transform="rotate(20.595337,16.735006,11.935507)">
                     <!-- Blade 1 -->
                     <path
@@ -273,12 +273,7 @@
                 </g>
             </svg>`;
         
-            return L.divIcon({
-                html: svg,
-                className: '',
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            });
+            return L.divIcon({ html: svg, className: '', iconSize: [36, 36], iconAnchor: [18, 18] });
         }
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -463,4 +458,5 @@
 
 
 </html>
+
 
