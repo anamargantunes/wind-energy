@@ -57,13 +57,15 @@
                 </div>
                 <h3>Choose your Blade</h3>
 
-                <div class="tabs three">
+                <div class="tabs four">
                     <input id="tab-1" type="radio" name="tabgroupB" checked="">
                     <label class="pseudo button toggle" for="tab-1">V236 (Vestas)</label>
                     <input id="tab-2" type="radio" name="tabgroupB">
                     <label class="pseudo button toggle" for="tab-2">SG 14-222 DD</label>
                     <input id="tab-3" type="radio" name="tabgroupB">
                     <label class="pseudo button toggle" for="tab-3">Haliade-X</label>
+                    <input id="tab-4" type="radio" name="tabgroupB">
+                    <label class="pseudo button toggle" for="tab-4">Dongfang 26MW</label>
                     <div class="row">
                         <div>
                             <table class="primary">
@@ -152,6 +154,40 @@
                             </table>
                             <button class="success" onclick="addCurrentBlade()">Add to Map</button>
                         </div>
+                        <div class="row">
+                        <div>
+                            <table class="primary">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Name</td>
+                                        <td>Dongfang 26MW</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Manufacturer</td>
+                                        <td>Dongfang</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Status</td>
+                                        <td>Prototype</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Diameter (m)</td>
+                                        <td>310</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Power (MW)</td>
+                                        <td>26</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <button class="success" onclick="addCurrentBlade()">Add to Map</button>
+                        </div>
                     </div>
                 </div>
                 <br>
@@ -173,7 +209,8 @@
         const bladeData = {
             'tab-1': { diameter: 236, color: '#f03' },
             'tab-2': { diameter: 222, color: '#30f' },
-            'tab-3': { diameter: 220, color: '#3f0' }
+            'tab-3': { diameter: 220, color: '#3f0' },
+            'tab-4': { diameter: 310, color: '#f90' }
         };
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -343,5 +380,6 @@
 
     </script>
 </body>
+
 
 </html>
