@@ -1,0 +1,17 @@
+html, body {
+    height: 100%;
+    margin: 0;
+}
+
+#map {
+    flex: 1;
+}
+
+.container {
+    padding: 23px;
+}
+
+.demo {
+    align-items: baseline;
+    justify-content: space-between;
+}
