@@ -1,17 +1,11 @@
-html, body {
-    height: 100%;
-    margin: 0;
-}
+@import "tailwindcss";
 
 #map {
-    flex: 1;
+    z-index: 0;
 }
 
-.container {
-    padding: 23px;
-}
-
-.demo {
-    align-items: baseline;
-    justify-content: space-between;
+@media (min-width: 768px) {
+    #panel {
+        width: 24rem;
+    }
 }

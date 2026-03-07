@@ -13,10 +13,12 @@ L.Icon.Default.mergeOptions({
 });
 
 let coords = [55.68425837121026, 12.593041555270815];
-let map = L.map('map').setView(coords, 17);
+let map = L.map('map', { zoomControl: false }).setView(coords, 17);
+L.control.zoom({ position: 'bottomright' }).addTo(map);
 let circles = []; // Array to store all circles
 let turbineMarkers = []; // Array to store {marker, color} for icon refresh
 let locationMarker; // Store the location marker
+let activeTab = 'tab-1';
 
 const bladeData = {
     'tab-1': { name: 'V236',          diameter: 236, color: '#f03' },
@@ -58,6 +60,24 @@ L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
 }).addTo(map);
 
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tab = btn.dataset.tab;
+        activeTab = tab;
+
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('border-sky-500', 'text-sky-600');
+            b.classList.add('border-transparent', 'text-slate-500');
+        });
+        btn.classList.add('border-sky-500', 'text-sky-600');
+        btn.classList.remove('border-transparent', 'text-slate-500');
+
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+        document.querySelector(`[data-panel="${tab}"]`).classList.remove('hidden');
+    });
+});
+
 // Function to update location marker
 function updateLocationMarker(coords) {
     if (locationMarker) {
@@ -87,14 +107,13 @@ updateLocationMarker(coords);
 
 // Function to add current blade selection to map
 function addCurrentBlade() {
-    const selectedTab = document.querySelector('input[name="tabgroupB"]:checked').id;
-    const diameter = selectedTab === 'tab-5'
+    const diameter = activeTab === 'tab-5'
         ? parseFloat(document.getElementById('custom-diameter').value)
-        : bladeData[selectedTab].diameter;
-    const color = document.getElementById('color-' + selectedTab).value;
-    const name = selectedTab === 'tab-5'
+        : bladeData[activeTab].diameter;
+    const color = document.getElementById('color-' + activeTab).value;
+    const name = activeTab === 'tab-5'
         ? (document.getElementById('custom-name').value || 'Custom')
-        : bladeData[selectedTab].name;
+        : bladeData[activeTab].name;
 
     if (locationMarker) {
         map.removeLayer(locationMarker);
@@ -128,10 +147,9 @@ map.on('click', function (e) {
     updateLocation([e.latlng.lat, e.latlng.lng]);
 });
 
-// listen to the search button and updates the coords array
-const searchButton = document.getElementById('search');
-searchButton.addEventListener('click', () => {
-    const coordsInput = document.querySelector('input[type="text"]');
+// Coordinate search
+document.getElementById('search').addEventListener('click', () => {
+    const coordsInput = document.getElementById('coordinates');
     try {
         const newCoords = coordsInput.value.split(',').map(coord => parseFloat(coord));
         updateLocation(newCoords);
@@ -141,7 +159,7 @@ searchButton.addEventListener('click', () => {
     }
 });
 
-// Add place search functionality
+// Place search
 const searchPlaceButton = document.getElementById('search-place');
 const placeInput = document.getElementById('place-search');
 
@@ -165,11 +183,8 @@ searchPlaceButton.addEventListener('click', async () => {
     }
 });
 
-// Also allow pressing Enter to search
 placeInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        searchPlaceButton.click();
-    }
+    if (e.key === 'Enter') searchPlaceButton.click();
 });
 
 // Icon size slider
@@ -180,12 +195,8 @@ iconSizeSlider.addEventListener('input', () => {
     turbineMarkers.forEach(({ marker, color }) => marker.setIcon(createTurbineIcon(color)));
 });
 
-// Add current location functionality
+// Current location
 const currentLocationButton = document.getElementById('current-location');
-
-// Remove the disabled attribute
-currentLocationButton.removeAttribute('disabled');
-
 currentLocationButton.addEventListener('click', () => {
     if (!navigator.geolocation) {
         alert('Geolocation is not supported by your browser');
@@ -197,44 +208,46 @@ currentLocationButton.addEventListener('click', () => {
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            // Success callback
-            const newCoords = [position.coords.latitude, position.coords.longitude];
-            updateLocation(newCoords);
-
-            // Reset button
+            updateLocation([position.coords.latitude, position.coords.longitude]);
             currentLocationButton.removeAttribute('disabled');
             currentLocationButton.textContent = 'Current';
         },
         (error) => {
-            // Error callback
             let message = 'Error getting your location: ';
             switch (error.code) {
-                case error.PERMISSION_DENIED:
-                    message += 'Permission denied';
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    message += 'Position unavailable';
-                    break;
-                case error.TIMEOUT:
-                    message += 'Request timed out';
-                    break;
-                default:
-                    message += 'Unknown error';
+                case error.PERMISSION_DENIED:   message += 'Permission denied'; break;
+                case error.POSITION_UNAVAILABLE: message += 'Position unavailable'; break;
+                case error.TIMEOUT:             message += 'Request timed out'; break;
+                default:                        message += 'Unknown error';
             }
             alert(message);
-
-            // Reset button
             currentLocationButton.removeAttribute('disabled');
             currentLocationButton.textContent = 'Current';
         },
-        {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        }
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
     );
 });
 
-// Expose functions needed by inline HTML onclick attributes
-window.addCurrentBlade = addCurrentBlade;
-window.clearBlades = clearBlades;
+// Panel toggle (mobile + desktop)
+const panelToggle = document.getElementById('panel-toggle');
+const panelContent = document.getElementById('panel-content');
+const panel = document.getElementById('panel');
+
+function togglePanel() {
+    const collapsed = panelContent.classList.toggle('hidden');
+    panelToggle.textContent = collapsed ? '▲' : '▼';
+    panel.style.bottom = collapsed ? 'auto' : '';
+}
+
+panelToggle.addEventListener('click', togglePanel);
+
+// Start collapsed on mobile
+if (window.innerWidth < 768) togglePanel();
+
+// Add to map buttons
+document.querySelectorAll('.add-blade-btn').forEach(btn => {
+    btn.addEventListener('click', addCurrentBlade);
+});
+
+// Clear all blades
+document.getElementById('clear-blades').addEventListener('click', clearBlades);
